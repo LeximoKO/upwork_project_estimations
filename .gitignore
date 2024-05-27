@@ -1,0 +1,41 @@
+# Python
+*.pyc
+__pycache__/
+
+# Environment Variables
+.env
+
+# macOS
+.DS_Store
+
+# Windows
+Thumbs.db
+
+# Virtual environments
+env/
+venv/
+ENV/
+
+# Logs
+*.log
+
+# Database
+*.sqlite3
+
+# Docker
+*.pid
+*.tar
+Dockerfile
+docker-compose.yml
+
+# VS Code
+.vscode/
+
+# JetBrains IDEs
+.idea/
+
+# Jupyter Notebook
+.ipynb_checkpoints
+
+# Others
+uploads/
