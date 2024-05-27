@@ -1,0 +1,375 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Upwork Estimations</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: Arial, sans-serif;
+            background-color: #182f25;
+            color: white;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+            position: relative;
+        }
+        header {
+            background: rgba(0, 0, 0, 0.7);
+            color: white;
+            padding: 1px;
+            text-align: center;
+            width: 100%;
+            position: fixed;
+            top: 0;
+        }
+        footer {
+            background: rgba(0, 0, 0, 0.7);
+            color: white;
+            padding: 1px;
+            text-align: center;
+            width: 100%;
+            position: fixed;
+            bottom: 0;
+        }
+        .container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            width: 100%;
+            padding-top: 80px;
+            padding-bottom: 50px;
+            box-sizing: border-box;
+        }
+        .form-container {
+            width: 80%;
+            padding: 30px;
+            box-sizing: border-box;
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+            background-color: rgba(255, 255, 255, 0.9);
+            border-radius: 8px;
+            color: black;
+        }
+        label {
+            color: black;
+        }
+        input, textarea, select {
+            width: 100%;
+            padding: 10px;
+            color: black;
+            background-color: white;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            margin-bottom: 10px;
+            box-sizing: border-box;
+        }
+        textarea {
+            resize: none;
+            overflow: hidden;
+        }
+        .project-type-buttons {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 20px;
+        }
+        .project-type-button {
+            background-color: #182f25;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            padding: 15px 30px;
+            cursor: pointer;
+            flex-grow: 1;
+            margin: 0 5px;
+        }
+        .project-type-button.selected {
+            background-color: #3a5b4d;
+            filter: brightness(1.2);
+        }
+        .loader {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            display: none;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+        }
+        .loader img {
+            width: 120px;
+            height: 120px;
+        }
+        .loader-text {
+            margin-top: 10px;
+            font-size: 18px;
+            color: white;
+        }
+        #preview-modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.8);
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+        }
+        #preview-content {
+            background-color: #fff;
+            padding: 20px;
+            border-radius: 8px;
+            width: 80%;
+            height: 80%;
+            overflow: auto;
+            color: black;
+        }
+        #close-preview {
+            background-color: red;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            padding: 10px 20px;
+            cursor: pointer;
+            position: absolute;
+            top: 20px;
+            right: 20px;
+        }
+        #download-md {
+            background-color: #3a5b4d;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            padding: 10px 20px;
+            cursor: pointer;
+            position: absolute;
+            top: 20px;
+            left: 20px;
+        }
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            overflow: auto;
+            background-color: rgba(0, 0, 0, 0.7);
+        }
+        .modal-content {
+            background-color: #fefefe;
+            margin: 15% auto;
+            padding: 20px;
+            border: 1px solid #888;
+            width: 80%;
+            border-radius: 8px;
+            color: red;
+            text-align: center;
+        }
+        .close {
+            color: #aaa;
+            float: right;
+            font-size: 28px;
+            font-weight: bold;
+        }
+        .close:hover,
+        .close:focus {
+            color: black;
+            text-decoration: none;
+            cursor: pointer;
+        }
+    </style>
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+</head>
+<body>
+    <header>
+        <h1>Upwork Estimations</h1>
+    </header>
+    <div class="container">
+        <div class="form-container">
+            <form id="projectForm">
+                <label for="project_type">Project Type:</label>
+                <div class="project-type-buttons">
+                    <button type="button" class="project-type-button" data-value="PoC">PoC</button>
+                    <button type="button" class="project-type-button" data-value="MVP">MVP</button>
+                    <button type="button" class="project-type-button" data-value="Product">Product</button>
+                </div>
+                <input type="hidden" id="project_type" name="project_type">
+                
+                <label for="project_name">Project Name:</label>
+                <input type="text" id="project_name" name="project_name">
+                
+                <label for="stakeholders">Stakeholders (Describe project stakeholders and their roles):<br><br>
+                    <ul>
+                        <li>Project Management: Oversees execution, timelines, and resources.</li>
+                        <li>Development: Responsible for frontend and backend development.</li>
+                        <li>Quality Assurance: Ensures software meets standards.</li>
+                            <li>IT Operations: Manages deployment and operation.</li>
+                            <li>End Users: Interact with the application for data exchange.</li>
+                            <li>System Administrators: Configure systems and manage permissions.</li>
+                            <li>Product Owners: Define project vision and requirements.</li>
+                            <li>Business Analysts: Analyze business needs.</li>
+                            <li>Security Team: Ensures project compliance with security standards.</li>
+                            <li>Customer Support: Provides end-user support.</li>
+                            <li>Financial Department: Manages project budget.</li>
+                            <li>Stakeholder Representatives: Provide feedback.</li>
+                            <li>Marketing Team: Promotes the project.</li>
+                            <li>External Partners/Vendors: Provide third-party services.</li>
+                        </ul>
+                    </label>
+                <textarea id="stakeholders" name="stakeholders" placeholder="NA"></textarea>
+                
+                <label for="timeline">Timeline (Please provide time limits in months you are expecting the projectshould be finished):</label>
+                <select id="timeline" name="timeline">
+                <option value="less than 1 month">less than 1 month</option>
+                <option value="1">1 month</option>
+                <option value="2">2 months</option>
+                <option value="3">3 months</option>
+                <option value="more than 3 months">more than 3 months</option>
+                </select>
+                            <label for="specific_requirements">Specific Requirements (If you have any specific requirements like technologies stack, frameworks, environment requirements, please provide them here.):</label>
+                            <textarea id="specific_requirements" name="specific_requirements" placeholder="NA"></textarea>
+                            
+                            <label for="detailed_description">Detailed Description (Please describe the nature of your project as detailed as it is possible. The more details you provide, the more accurate will be the project plan.):</label>
+                            <textarea id="detailed_description" name="detailed_description" required></textarea>
+                            <span id="description-warning" class="modal" style="display: none;">
+                                <div class="modal-content">
+                                    <span class="close">&times;</span>
+                                    Please provide a detailed description of the project to continue.
+                                </div>
+                            </span>
+                            
+                            <input type="submit" value="Submit">
+                        </form>
+                    </div>
+                </div>
+                <div class="loader" id="loader">
+                    <img src="https://upload.wikimedia.org/wikipedia/commons/3/3a/Gray_circles_rotate.gif" alt="Loading...">
+                    <div class="loader-text">Creating</div>
+                </div>
+                
+                <div id="preview-modal">
+                    <div id="preview-content">
+                        <button id="close-preview">Close</button>
+                        <button id="download-md">Download .md</button>
+                        <div id="markdown-content"></div>
+                    </div>
+                </div>
+                
+                <footer>
+                    <p>Symfa.com R&D</p>
+                </footer>
+                
+                <script>
+                    document.addEventListener('DOMContentLoaded', function() {
+                        const detailedDescription = document.getElementById('detailed_description');
+                        const descriptionWarning = document.getElementById('description-warning');
+                        const form = document.getElementById('projectForm');
+                        const loader = document.getElementById('loader');
+                        const previewModal = document.getElementById('preview-modal');
+                        const markdownContent = document.getElementById('markdown-content');
+                        const closePreviewButton = document.getElementById('close-preview');
+                        const projectTypeInput = document.getElementById('project_type');
+                        const projectTypeButtons = document.querySelectorAll('.project-type-button');
+                        const projectNameInput = document.getElementById('project_name'); 
+                
+                        detailedDescription.addEventListener('input', function() {
+                            this.style.height = 'auto';
+                            this.style.height = this.scrollHeight + 'px';
+                        });
+                
+                        // Генерируем случайный порядковый номер
+                        const projectNumber = Math.floor(Math.random() * 1000) + 1;
+                
+                        // Устанавливаем сгенерированный номер проекта в поле "Project Name"
+                        projectNameInput.value = 'Project#' + projectNumber;
+                
+                        form.addEventListener('submit', function(event) {
+                            event.preventDefault(); 
+                            if (detailedDescription.value.trim() === '') {
+                                descriptionWarning.style.display = 'block'; 
+                            } else {
+                                descriptionWarning.style.display = 'none'; 
+                                loader.style.display = 'flex';
+                
+                                const projectName = projectNameInput.value; 
+                                const stakeholders = document.getElementById('stakeholders').value || 'NA';
+                                const timeline = document.getElementById('timeline').value;
+                                const specificRequirements = document.getElementById('specific_requirements').value;
+                                const detailedDescriptionValue = detailedDescription.value;
+                
+                                const requestData = {
+                                    project_type: projectTypeInput.value,
+                                    project_name: projectName,
+                                    stakeholders: stakeholders,
+                                    timeline: timeline,
+                                    specific_requirements: specificRequirements,
+                                    detailed_description: detailedDescriptionValue
+                                };
+                
+                                fetch('/chat_api', {
+                                    method: 'POST',
+                                    headers: {
+                                        'Content-Type': 'application/json'
+                                    },
+                                    body: JSON.stringify(requestData)
+                                })
+                                .then(response => response.json())
+                                .then(data => {
+                                    loader.style.display = 'none';
+                                    console.log(data); 
+                                    const markdownText = data.response;
+                                    if (markdownText) {
+                                        markdownContent.innerHTML = marked.parse(markdownText);
+                                        previewModal.style.display = 'flex';
+                                    } else {
+                                        alert('Error: No response from bot.');
+                                    }
+                                })
+                                .catch(error => {
+                                    loader.style.display = 'none';
+                                    console.error('Error:', error);
+                                    alert('Error: ' + error.message);
+                                });
+                            }
+                        });
+                
+                        closePreviewButton.addEventListener('click', function() {
+                            previewModal.style.display = 'none';
+                        });
+                
+                        document.getElementById('download-md').addEventListener('click', function() {
+                            const markdown = markdownContent.innerText;
+                            const blob = new Blob([markdown], { type: 'text/plain' });
+                            const url = window.URL.createObjectURL(blob);
+                            const a = document.createElement('a');
+                            a.href = url;
+                            a.download = 'project_description.md';
+                            document.body.appendChild(a);
+                            a.click();
+                            document.body.removeChild(a);
+                            window.URL.revokeObjectURL(url);
+                        });
+                
+                        projectTypeButtons.forEach(button => {
+                            button.addEventListener('click', function() {
+                                projectTypeButtons.forEach(btn => btn.classList.remove('selected'));
+                                this.classList.add('selected');
+                                projectTypeInput.value = this.getAttribute('data-value');
+                            });
+                        });
+                    });
+                </script>
+                </body>
+                </htmlЮ
