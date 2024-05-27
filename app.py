@@ -1,5 +1,5 @@
 from flask import Flask, render_template, request, jsonify, send_file, url_for  
-from docx import Document
+from python-docx import Document
 import os
 import requests
 from dotenv import load_dotenv
