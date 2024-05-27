@@ -1,0 +1,8 @@
+services:
+  - name: flask-app
+    env: python
+    buildCommand: pip install -r requirements.txt
+    startCommand: python app.py
+    envVars:
+      BASE_API_URL: your_base_api_url
+      FLOW_ID: your_flow_id
