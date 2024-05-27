@@ -1,4 +1,4 @@
-from flask import Flask, render_template, request, jsonify, send_file, url_for  # Добавлен импорт url_for
+from flask import Flask, render_template, request, jsonify, send_file, url_for  
 from docx import Document
 import os
 import requests
