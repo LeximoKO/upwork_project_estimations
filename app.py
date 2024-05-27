@@ -1,5 +1,5 @@
-from flask import Flask, render_template, request, jsonify, send_file, url_for  
-from python-docx import Document
+from flask import Flask, render_template, request, jsonify, send_file, url_for
+from docx import Document
 import os
 import requests
 from dotenv import load_dotenv
@@ -67,7 +67,7 @@ def chat_api():
         if not os.path.exists(file_path):
             raise FileNotFoundError(f"File not found: {file_path}")
 
-        return jsonify({'response': bot_response, 'file_url': url_for('uploaded_file', filename='document.docx', _external=True)})  # Используем url_for здесь
+        return jsonify({'response': bot_response, 'file_url': url_for('uploaded_file', filename='document.docx', _external=True)})
     except Exception as e:
         app.logger.error(f"Error during document generation: {str(e)}")
         return jsonify({'error': str(e)}), 500
@@ -82,4 +82,3 @@ def uploaded_file(filename):
 
 if __name__ == '__main__':
     app.run(debug=True, port=5001)
-
