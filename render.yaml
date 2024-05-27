@@ -2,7 +2,8 @@ services:
   - name: flask-app
     env: python
     buildCommand: pip install -r requirements.txt
-    startCommand: python app.py
+    startCommand: gunicorn -w 4 -b 0.0.0.0:8080 wsgi:app
     envVars:
-      BASE_API_URL: your_base_api_url
-      FLOW_ID: your_flow_id
+      BASE_API_URL: https://langflow-bpxr.onrender.com/api/v1/process
+      FLOW_ID: dde8d748-fb5a-4b4f-a4de-fa1a4f13c449
+
